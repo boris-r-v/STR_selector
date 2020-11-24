@@ -21,7 +21,7 @@ class MysqlSelector(object):
 
 
     def get_data_from_ts( self, ts_name, limit ):
-        sql_req= u"select from_unixtime(sec) as time, sec, who, value from loglist where kind='Импульс.ТЗК' and who='{}' limit {:d}".format(ts_name, limit)
+        sql_req= u"select from_unixtime(sec) as time, sec, who, value from loglist where kind='Импульс.ТЗК' and who IN ('{}') limit {:d}".format(ts_name, limit)
         return self.query( sql_req )
 
 

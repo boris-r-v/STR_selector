@@ -1,4 +1,4 @@
-to_one_state_interval_in_sec, to_zero_state_interval_in_sec
+zero_state, one_state
 2194, 1616
 743, 351
 8669, 798
@@ -1079,6 +1079,3 @@ to_one_state_interval_in_sec, to_zero_state_interval_in_sec
 915, 1241
 115, 977
 726, 1261
-None, 735
-None, 932
-None, 8310
