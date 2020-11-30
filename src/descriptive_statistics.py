@@ -85,6 +85,7 @@ def describe_ts( ts_list, db_conn, logger ):
         Create statistic decriptions for ts states, and save in to file
     """
     for ts_name in ts_list:
+        logger.info("\tОбработка импульса ТС: {}".format(ts_name))
         pd_df = create_dataframe_from_dict( dh.from_ts_state_to_time_interval( db_conn.get_data_from_ts(ts_name=ts_name, limit=1000000), ts_name ) )
         db_conn.store_decriptive_staticsics(pd_df.describe(), ts_name )
 

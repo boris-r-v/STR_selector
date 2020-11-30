@@ -9,7 +9,7 @@ class ConfigKeyNotExist(Exception):
 def throw( ex_str ):
     raise ConfigKeyNotExist( ex_str )
 
-def get_signal_data( cfile ):
+def get_entry_signal_data( cfile ):
     """
     Возвращает уровень логинга
     Если ключ не найден генерируется исключение ConfigKeyNotExist
@@ -18,7 +18,29 @@ def get_signal_data( cfile ):
     """
     config = configparser.ConfigParser()
     config.read( cfile )
-    return config["SIGNAL"]["OPEN_TS"]
+    return config["STAGE1"]["ENTRY_TS"]
+
+def get_sail_signal_data( cfile ):
+    """
+    Возвращает уровень логинга
+    Если ключ не найден генерируется исключение ConfigKeyNotExist
+
+    :param cfile - путь к конфигурационному файлу
+    """
+    config = configparser.ConfigParser()
+    config.read( cfile )
+    return config["STAGE1"]["SAIL_TS"]
+
+def get_rcirc_signal_data( cfile ):
+    """
+    Возвращает уровень логинга
+    Если ключ не найден генерируется исключение ConfigKeyNotExist
+
+    :param cfile - путь к конфигурационному файлу
+    """
+    config = configparser.ConfigParser()
+    config.read( cfile )
+    return config["STAGE1"]["RCIRC_TS"]
 
 def get_mysql_server_config( cfile ):
     """

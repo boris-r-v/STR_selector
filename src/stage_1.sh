@@ -1,5 +1,5 @@
 #!/bin/bash
 
-python3 main.py
+python3 stage1.py
 
 rm -rf ./__pycache__

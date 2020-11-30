@@ -41,6 +41,9 @@ class MysqlSelector(object):
     def store_decriptive_staticsics(self, descrip, ts_name ):
         cursor = self.cnx.cursor()
         for i in descrip:
-            print ( descrip[i]['75%'] )
             qu = f"REPLACE INTO descriptive_statistics (ts_name, state, mean, std, first_quantile, median, third_quantile, min, max) VALUES ('{ts_name}', {int(i)}, {descrip[i]['mean']}, {descrip[i]['std']}, {descrip[i]['25%']}, {descrip[i]['50%']}, {descrip[i]['75%']}, {descrip[i]['min']}, {descrip[i]['max']} )"
-            cursor.execute( qu )
+            try:
+                cursor.execute( qu )
+            except:
+                self.logger.error ( f"BAD query: {qu}" )
+                print (descrip[i])
