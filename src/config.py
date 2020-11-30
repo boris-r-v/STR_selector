@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-import configparser
+import yaml
 import unittest as ut
 
 class ConfigKeyNotExist(Exception):
@@ -16,9 +16,10 @@ def get_entry_signal_data( cfile ):
 
     :param cfile - путь к конфигурационному файлу
     """
-    config = configparser.ConfigParser()
-    config.read( cfile )
-    return config["STAGE1"]["ENTRY_TS"]
+    with open( cfile ) as c:
+        config = yaml.full_load(c)
+        return config["STAGE1"]["ENTRY_TS"]
+    return ""
 
 def get_sail_signal_data( cfile ):
     """
@@ -27,9 +28,10 @@ def get_sail_signal_data( cfile ):
 
     :param cfile - путь к конфигурационному файлу
     """
-    config = configparser.ConfigParser()
-    config.read( cfile )
-    return config["STAGE1"]["SAIL_TS"]
+    with open( cfile ) as c:
+        config = yaml.full_load(c)
+        return config["STAGE1"]["SAIL_TS"]
+    return ""
 
 def get_rcirc_signal_data( cfile ):
     """
@@ -38,9 +40,10 @@ def get_rcirc_signal_data( cfile ):
 
     :param cfile - путь к конфигурационному файлу
     """
-    config = configparser.ConfigParser()
-    config.read( cfile )
-    return config["STAGE1"]["RCIRC_TS"]
+    with open( cfile ) as c:
+        config = yaml.full_load(c)
+        return config["STAGE1"]["RCIRC_TS"]
+    return ""
 
 def get_mysql_server_config( cfile ):
     """
@@ -53,8 +56,8 @@ def get_mysql_server_config( cfile ):
 
     """
     section = "MYSQL"
-    config = configparser.ConfigParser()
-    config.read( cfile )
+    c = open( cfile )
+    config = yaml.full_load(c)
     if ( section in config ):
         sect = config[section]
         if ( "IP" in sect and "DATABASE" in sect and "USER" in sect):
@@ -72,8 +75,8 @@ def get_logger_level( cfile ):
 
     :param cfile - путь к конфигурационному файлу
     """
-    config = configparser.ConfigParser()
-    config.read( cfile )
+    c = open( cfile )
+    config = yaml.full_load(c)
     return config["DEFAULT"]["LOGGER_LEVEL"]
 
 
