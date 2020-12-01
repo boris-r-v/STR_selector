@@ -1,0 +1,31 @@
+SOMEGROUP:
+    SOMESTRING: xyz
+    SOMEDICT:
+        v1: k1
+        v2: k2
+    SOMELIST:
+        - v1
+        - v2
+
+DEFAULT:
+    LOGGER_LEVEL: INFO
+
+MYSQL:
+    IP: 172.17.0.2
+    DATABASE: doppler_muslumovo
+    USER: disp
+
+COMPUTE:
+    OBJECTS:
+        1-9СП:
+            SELF_TS: 
+                1-9СП(к): 1
+            CONSTRAIN:
+                К9+: 1
+                К35+: 1
+                К1+: 1
+            SIBLING_TS:
+                2АП(к): 1
+                НАП(к): 1
+            LENGTH: 25
+

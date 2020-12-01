@@ -1,7 +1,14 @@
+SOMEGROUP:
+    SOMESTRING: xyz
+    SOMEDICT:
+        v1: k1
+        v2: k2
+    SOMELIST:
+        - v1
+        - v2
 
 DEFAULT:
     LOGGER_LEVEL: INFO
-
 
 MYSQL:
     IP: 172.17.0.2
@@ -15,4 +22,8 @@ STAGE1:
     ALGO: describe
 
 STAGE2:
-    RCIRC_TS_MASK: sds
+    RCIRC_TS_MASK:
+        pIn: П(к)
+        pIn_active: 1
+        zIn: П(б)
+        zIn_active: 0

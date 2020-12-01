@@ -8,7 +8,14 @@ class ConfigKeyNotExist(Exception):
 
 def throw( ex_str ):
     raise ConfigKeyNotExist( ex_str )
+#---------------STAGE 2 ---------------
+def get_rcirc_mask_and_active_state( cfile ):
+    with open( cfile ) as c:
+        config = yaml.full_load(c)
+        return config["STAGE2"]["RCIRC_TS_MASK"]
+    return ""
 
+#---------------STAGE 1------------------------------
 def get_entry_signal_data( cfile ):
     """
     Возвращает уровень логинга

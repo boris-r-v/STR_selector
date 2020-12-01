@@ -6,6 +6,38 @@ import matplotlib.pyplot as plt
 import ts_series_to_time_interval as dh
 import math
 
+from sklearn.utils import Bunch
+import numpy
+
+mb = Bunch()
+mb.zero_data=numpy.ndarray([1,2,2,2,2], dtype=float)
+mb.one_data=[4,4,4,4,4]
+mb.name = ['1','2','3','4','5']
+mb.features = ['mean', 'std' ]
+type(mb.zero_data)
+
+
+def st2_create_bunch_from_dict ( in_dict ):
+
+    key_list = []
+    one_state_list = []
+    zero_state_list = []
+    name_features = ['mean', 'std', 'min' '25%', '50%', '75%', 'max']
+    for key in in_dict.keys():
+        n_zero = [ in_dict[key]['0']['mean'], in_dict[key]['0']['std'], in_dict[key]['0']['min'], in_dict[key]['0']['25%'], in_dict[key]['0']['50%'], in_dict[key]['0']['75%'], in_dict[key]['0']['max'] ]
+        n_one = [ in_dict[key]['1']['mean'], in_dict[key]['1']['std'], in_dict[key]['1']['min'], in_dict[key]['1']['25%'], in_dict[key]['1']['50%'], in_dict[key]['1']['75%'], in_dict[key]['1']['max'] ]
+
+        key_list.append(key)
+        one_state_list.append(n_one)
+        zero_state_list.append(n_zero)
+
+    mb = Bunch()
+    mb.zero_data = numpy.array(zero_state_list, dtype=float)
+    mb.one_data = numpy.array(one_state_list, dtype=float)
+    mb.name = key_list
+    mb.features = name_features
+    return mb
+
 def create_dataframe_from_dict( in_dict ):
 
     df = pd.DataFrame( in_dict )
