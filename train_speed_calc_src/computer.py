@@ -148,14 +148,15 @@ class Computer( object ):
                 'self_busy_sec': self.__signals[self_ts_name].sec,
                 }
 
-        if ( secs_to_move > 0 ):
+        if ( secs_to_move > 0 and dct['speed_kmh'] < self.__anomaly_speed ):
             self.__db.insert_into_train_speed( dct )
-        else:
-            self.__logger.error ("Скорость отрицательна {dct}") 
+
+        if ( secs_to_move < 0 ):
+            self.__logger.error (f" Скорость отрицательна {dct}")
 
         if ( dct['speed_kmh'] > self.__anomaly_speed ):
             #show detail:
-            print (f"Аномально большая скорость {dct['speed_kmh']}")
+            self.__logger.error (f" Аномально большая скорость {round(dct['speed_kmh'],2)}км/ч")
             print (f"Движение по {self_ts_name} в сторону {last_ts_name}, время движения {secs_to_move}сек, скорость: {round(dct['speed_kmh'],2)}км/ч, время занятия: {self.__signals[self_ts_name].sec}")
             for ts in self.__signals.values():
                 print (ts)

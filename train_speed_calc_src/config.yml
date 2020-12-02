@@ -15,7 +15,7 @@ MAIN:
         USER: disp
 
 COMPUTE:
-    ANOMALY_SPEED: 150
+    ANOMALY_SPEED: 160
     LOG_FILE: "anomaly_log.txt"     #пока не используется
     OBJECTS:
         1-9СП(1+,3+,9+):
