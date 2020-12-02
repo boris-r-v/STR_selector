@@ -2,10 +2,10 @@
 
 
 class Ts( object ):
-    def __init__(self, _sec, _name, _value ):
+    def __init__(self, _sec = -1, _name = '???', _value = '???' ):
         self.name = _name
         self.sec = int(_sec )
-        self.value = 0 if (-1 != _value.find('0') ) else 1
+        self.value = 0 if (-1 != _value.find('пас') ) else 1 if (-1 != _value.find('акт') ) else -2
 
 
     def __str__(self):

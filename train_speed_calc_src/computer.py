@@ -17,13 +17,24 @@ class Computer( object ):
             Считаем, что в ТС на секцию одна запись
     """
     #public
-    def check_ts_state(self):
+    def name(self):
+        return self.__name
+
+    def check_ts_states(self, logger):
         """
             По концу проверит, что все состояние всех ТС не равно -1, 
             Если равно - значит этот сигнал не обновился и поэтому не верна настройка этого калькулятора
         """
-        #FIX ME - TODO
-        pass
+        for k in self.__self_ts_now.keys():
+            if ( -1 == self.__self_ts_now[k] ):
+                logger.error(f"Калькулятор скорости '{self.__name}', не нашел ТС '{k}' - ошибка в имени ТС")
+        for k in self.__sibling_ts_now.keys():
+            if ( -1 == self.__sibling_ts_now[k] ):
+                logger.error(f"Калькулятор скорости '{self.__name}', не нашел ТС '{k}' - ошибка в имени ТС")
+        if ( self.__constrain_now ):
+            for k in self.__constrain_now.keys():
+                if ( -1 == self.__constrain_now[k] ):
+                    logger.error(f"Калькулятор скорости '{self.__name}', не нашел ТС '{k}' - ошибка в имени ТС")
 
     def get_ts_names(self):
         ret = {**self.__self_ts_now, **self.__sibling_ts_now }
@@ -35,22 +46,24 @@ class Computer( object ):
         if ( ts.name in self.__self_ts_now ):
             self.__update_self_ts( ts )
 
-        elif ( ts.name in self.__constrain_now ):
-            self.__update_constrain( ts )
-
         elif ( ts.name in self.__sibling_ts_now ):
             self.__update_sibling_ts( ts )
 
+        elif ( self.__constrain_now and ts.name in self.__constrain_now ):
+            self.__update_constrain( ts )
 
     #private
-    def __init__(self, _name, _dict ):
+    def __init__(self, _name, _dict, _logger, _db ):
+        self.__db = _db
+        self.__name = _name
+        self.__logger = _logger
         #Это шаблоны загруженные из конфигурации - какое положение ТС должно быть 
-        self.__self_ts_template = _dict['SELF_TS'].copy()
-        self.__constrain_template = _dict['CONSTRAIN'].copy()
-        self.__sibling_ts_template = _dict['SIBLING_TS'].copy()
+        self.__self_ts_template = _dict['SELF_TS']
+        self.__constrain_template = _dict['CONSTRAIN']
+        self.__sibling_ts_template = _dict['SIBLING_TS']
         #Это верктора с текущими данными
         self.__self_ts_now = _dict['SELF_TS'].copy()
-        self.__constrain_now = _dict['CONSTRAIN'].copy()
+        self.__constrain_now = self.__constrain_template.copy() if self.__constrain_template else None
         self.__sibling_ts_now = _dict['SIBLING_TS'].copy()
         #Длинна участка
         self.__length = float(_dict['LENGTH'])
@@ -67,27 +80,12 @@ class Computer( object ):
                 self.__constrain_now[k] = -1
 
 
-        print("--now--")
-        print (self.__self_ts_now)
-        print (self.__sibling_ts_now)
-        print (self.__constrain_now)
-
-        print("--template--")
-        print (self.__self_ts_template)
-        print (self.__sibling_ts_template)
-        print (self.__constrain_template)
-
-
-
     def __update_self_ts( self, ts ):
         self.__self_ts_now[ts.name] = ts.value
         self.__signals[ts.name] = ts
-        self.__compute()
 
     def __update_constrain( self, ts ):
         self.__constrain_now[ts.name] = ts.value
-        self.__compute()
-
 
     def __update_sibling_ts( self, ts ):
         self.__sibling_ts_now[ts.name] = ts.value
@@ -131,10 +129,31 @@ class Computer( object ):
         self_ts_name = list(self.__self_ts_now.keys())[0]
 
         secs_to_move = self.__signals[last_ts_name].sec - self.__signals[self_ts_name].sec
-        print (f"Движение в сторону {last_ts_name}, время движения {secs_to_move} сек, время занятия секции {self_ts_name} {self.__signals[self_ts_name].sec}")
+#        print (f"Движение в сторону {last_ts_name}, время движения {secs_to_move} сек, время занятия секции {self_ts_name} {self.__signals[self_ts_name].sec}")
+        dct = { 'computer_name': self.__name,
+                'move_sec' : secs_to_move,
+                'length' : self.__length,
+                'speed_kmh': 3.6*self.__length/secs_to_move,
+                'move_to_ts_name': last_ts_name,
+                'self_ts_name':self_ts_name,
+                'self_busy_sec': self.__signals[self_ts_name].sec,
+                }
+#        print ( dct )
+        if ( secs_to_move > 0 ):
+            self.__db.insert_into_train_speed( dct )
+        else:
+            self.__logger.error ("Скорость отрицательна {dct}") 
+
 #        for ts in self.__signals.values():
 #            print (ts)
 
+def check_states( comp_list, logger ):
+    """
+        После выполнения сборки данных, проходит по всем калькуляторам и смотрит, что в  них не осталось импульсов ТС  со значением -1
+            т.е. все импульсы были обновлены в ходе работы - значит адаптация верная
+    """
+    for cm in comp_list:
+        cm.check_ts_states( logger )
 
 def create_ts_names( comp_list ):
     ret = {}
@@ -142,8 +161,8 @@ def create_ts_names( comp_list ):
         ret = { **ret, **cm.get_ts_names() }
     return ret.keys()
 
-def create_computers( _dict ):
+def create_computers( _dict, _logger, _db ):
     ret = []
     for c in _dict.keys():
-        ret.append( Computer(c, _dict[c] ) )
+        ret.append( Computer(c, _dict[c], _logger, _db ) )
     return ret

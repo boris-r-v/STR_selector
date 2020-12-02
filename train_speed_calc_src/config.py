@@ -1,6 +1,7 @@
-# -*- coding: utf-8 -*-
+# - *- coding: utf-8 -*-
 
 import yaml
+import logging
 import unittest as ut
 
 class ConfigKeyNotExist(Exception):
@@ -25,14 +26,47 @@ def get_mysql_server_config( cfile ):
     :param section - секция для которой получить конфигурацию, доступны [DATA_SOURCE|DATA_CLEANER|DATA_MINER|NOTIFIER]
 
     """
-    section = "MYSQL"
     c = open( cfile )
     config = yaml.full_load(c)
-    if ( section in config ):
-        sect = config[section]
-        if ( "IP" in sect and "DATABASE" in sect and "USER" in sect):
-            return [ sect["IP"], sect["DATABASE"], sect["USER"] ]#{"ip":sect["IP"], "db":sect["DATABASE"], "user":sect["USER"] }
-        else:
-            throw( f"IP or DATABSE or USER section not exist in {section} in config file {cfile}" )
+    sect = config['MAIN']['MYSQL']
+    if ( "IP" in sect and "DATABASE" in sect and "USER" in sect):
+        return [ sect["IP"], sect["DATABASE"], sect["USER"] ]#{"ip":sect["IP"], "db":sect["DATABASE"], "user":sect["USER"] }
     else:
-        throw( f"{section} section not exist in config file {cfile}" )
+        throw( f"IP or DATABSE or USER section not exist in {section} in config file {cfile}" )
+
+
+def set_loggin_level( cfile, logger ):
+    with open( cfile ) as c:
+        config = yaml.full_load(c)
+        log_level = config["MAIN"]["LOG_LEVEL"]
+        if ( "INFO" == log_level ):
+            logging.basicConfig(level = logging.INFO)
+        elif ( "DEBUG" == log_level ):
+            logging.basicConfig(level = logging.DEBUG)
+        elif ( "WARNING" == log_level ):
+            logging.basicConfig(level = logging.WARNING)
+        elif ( "ERROR" == log_level ):
+            logging.basicConfig(level = logging.ERROR)
+        elif ( "CRITICAL" == log_level ):
+            logging.basicConfig(level = logging.CRITICAL)
+        """
+        if ( "INFO" == log_level ):
+            logger.setLevel( logging.INFO )
+        elif ( "DEBUG" == log_level ):
+            logger.setLevel( logging.DEBUG )
+        elif ( "WARNING" == log_level ):
+            logger.setLevel( logging.WARNING )
+        elif ( "ERROR" == log_level ):
+            logger.setLevel( logging.ERROR )
+        elif ( "CRITICAL" == log_level ):
+            logger.setLevel( logging.CRITICAL )
+
+        """
+
+
+
+
+
+
+
+

@@ -2,41 +2,59 @@
 
 import config as cfg
 import mysql.connector
-import logging
+import logging,sys
 from ts import Ts
 
-logging.basicConfig(level = logging.INFO)
-create_statistics_table="CREATE TABLE IF NOT EXISTS descriptive_statistics (ts_name VARCHAR(30), state VARCHAR(10), mean FLOAT, std FLOAT, first_quantile FLOAT, median FLOAT, third_quantile FLOAT, min FLOAT, max FLOAT, PRIMARY KEY(ts_name, state) ) ENGINE=MYISAM "
+#{'computer_name': 'НАП', 'move_sec': 45, 'length': 125.0, 'speed_kmh': 10.0, 'move_to_ts_name': 'Н1ИП', 'self_ts_name': 'НАП(к)', 'self_busy_sec': 1605530175}
+create_speed_train_table="CREATE TABLE IF NOT EXISTS train_speed (computer_name VARCHAR(100), move_sec INT, length FLOAT, speed_kmh FLOAT, move_to_ts_name VARCHAR(30), self_ts_name VARCHAR(30), self_busy_sec INT, PRIMARY KEY(computer_name, self_busy_sec) ) ENGINE=MYISAM "
 
 class MysqlSelector(object):
     def __init__( self, logger, config_file ):
         self.logger = logger
-
+        self.insert_sql_list = []
         ip, db, user = cfg.get_mysql_server_config( config_file )
-        logger.info("MySQL config: 'ip':'{}', 'db':'{}', 'user':'{}'".format(ip, db, user) )
+        self.logger.info("MySQL config: 'ip':'{}', 'db':'{}', 'user':'{}'".format(ip, db, user) )
         self.cnx = mysql.connector.connect( user=user, database=db, host=ip )
-        logger.info("MySQL connected".format() )
+        self.logger.info("MySQL connected".format() )
         cursor = self.cnx.cursor()
         cursor.execute( "SET NAMES 'latin1'" )
-        cursor.execute( create_statistics_table )
+        cursor.execute( create_speed_train_table )
 
 
-    def create_ts_list( self, list_of_ts_names ):
+    def handle_signals( self, list_of_ts_names, computers ):
+        """
+            Получает список ТСов и метод который может передать эти сигналы в калькуляторы
+        """
         in_statement = "'"
         in_statement += ",".join( e for e in list_of_ts_names ).replace(",","','")
         in_statement += "'"
         sql_str = f"SELECT DISTINCT sec,who,value FROM loglist WHERE kind='Импульс.ТЗК' AND who IN ({in_statement}) ORDER BY sec ASC"
-        print ( sql_str )
         cursor = self.cnx.cursor()
         cursor.execute( sql_str )
+        #очистим список команд вуставки данных
+        self.insert_sql_list.clear()
 
-        lst = []
+        #обработкаем ТС
         for (sec, who, value) in cursor:
-            lst.append( Ts(sec, who, value) )
+            for cm in computers:
+                cm.new_state( Ts(sec, who, value) )
+
+        #когда проверили - смотрим что насчитали и соханяем в БД
+        for sql in self.insert_sql_list:
+            try:
+                cursor.execute( sql )
+            except:
+                self.logger.error ( f"BAD query: {sql}\n{sys.exc_info()}" )
+
         cursor.close()
-        return lst
+        self.logger.info( f"Загружено в БД {len(self.insert_sql_list)} записей с рассчитанными скоростями")
+        self.insert_sql_list.clear()
 
 
+    def insert_into_train_speed( self, decr_dict ):
+        dd = decr_dict
+        sql = f"REPLACE INTO train_speed (computer_name, move_sec, length, speed_kmh, move_to_ts_name, self_ts_name, self_busy_sec) VALUES ('{dd['computer_name']}', {dd['move_sec']}, {dd['length']}, {dd['speed_kmh']}, '{dd['move_to_ts_name']}', '{dd['self_ts_name']}', {dd['self_busy_sec']})"
+        self.insert_sql_list.append(sql)
 
 #----------------------OLD----------------------------
 
