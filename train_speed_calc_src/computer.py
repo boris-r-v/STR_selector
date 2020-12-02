@@ -53,10 +53,12 @@ class Computer( object ):
             self.__update_constrain( ts )
 
     #private
-    def __init__(self, _name, _dict, _logger, _db ):
+    def __init__(self, _name, _dict, _logger, _db, _anomaly_speed, _path_to_file ):
         self.__db = _db
         self.__name = _name
         self.__logger = _logger
+        self.__anomaly_speed = _anomaly_speed
+        self.__path_to_file = _path_to_file
         #Это шаблоны загруженные из конфигурации - какое положение ТС должно быть 
         self.__self_ts_template = _dict['SELF_TS']
         self.__constrain_template = _dict['CONSTRAIN']
@@ -129,7 +131,6 @@ class Computer( object ):
         self_ts_name = list(self.__self_ts_now.keys())[0]
 
         secs_to_move = self.__signals[last_ts_name].sec - self.__signals[self_ts_name].sec
-#        print (f"Движение в сторону {last_ts_name}, время движения {secs_to_move} сек, время занятия секции {self_ts_name} {self.__signals[self_ts_name].sec}")
         dct = { 'computer_name': self.__name,
                 'move_sec' : secs_to_move,
                 'length' : self.__length,
@@ -138,14 +139,26 @@ class Computer( object ):
                 'self_ts_name':self_ts_name,
                 'self_busy_sec': self.__signals[self_ts_name].sec,
                 }
-#        print ( dct )
+
         if ( secs_to_move > 0 ):
             self.__db.insert_into_train_speed( dct )
         else:
             self.__logger.error ("Скорость отрицательна {dct}") 
 
-#        for ts in self.__signals.values():
-#            print (ts)
+        if ( dct['speed_kmh'] > self.__anomaly_speed ):
+            #show detail:
+            print (f"Движение по {self_ts_name} в сторону {last_ts_name}, время движения {secs_to_move}сек, скорость: {round(dct['speed_kmh'],2)}км/ч, время занятия: {self.__signals[self_ts_name].sec}")
+            for ts in self.__signals.values():
+                print (ts)
+            print ("---------")
+            """
+            with open(self.__path_to_file,'a' ) as f:
+                f.write(f"Движение по {self_ts_name} в сторону {last_ts_name}, время движения {secs_to_move}сек, скорость: {round(dct['speed_kmh'],2)}км/ч, время занятия: {self.__signals[self_ts_name].sec}\n")
+                for ts in self.__signals.values():
+                    f.write(str(ts)+'\n')
+                f.write ("---------\n")
+                f.close()
+            """
 
 def check_states( comp_list, logger ):
     """
@@ -161,8 +174,8 @@ def create_ts_names( comp_list ):
         ret = { **ret, **cm.get_ts_names() }
     return ret.keys()
 
-def create_computers( _dict, _logger, _db ):
+def create_computers( _dict, _logger, _db, anomaly_speed, path_to_file ):
     ret = []
     for c in _dict.keys():
-        ret.append( Computer(c, _dict[c], _logger, _db ) )
+        ret.append( Computer(c, _dict[c], _logger, _db, anomaly_speed, path_to_file ) )
     return ret

@@ -19,8 +19,8 @@ def main():
         #Подключимся к БД
         db_conn = mdbc.MysqlSelector( logger, config_file )
         #Построим калькуляторы скорости по описанию
-        config_dict = cfg.get_computer_dict (config_file)
-        comp_list = cmptr.create_computers( config_dict, logger, db_conn )
+        config_dict, anomaly_speed, path_to_file = cfg.get_computers_config (config_file)
+        comp_list = cmptr.create_computers( config_dict, logger, db_conn, anomaly_speed, path_to_file )
         logger.info(f"Загружены калькураторы скорости: {', '.join(e.name() for e in comp_list)}")
 
         #Запуским расчет скорости и сохранение данных в БД

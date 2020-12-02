@@ -10,11 +10,10 @@ class ConfigKeyNotExist(Exception):
 def throw( ex_str ):
     raise ConfigKeyNotExist( ex_str )
 
-def get_computer_dict( cfile ):
+def get_computers_config( cfile ):
     with open( cfile ) as c:
         config = yaml.full_load(c)
-        return config["COMPUTE"]["OBJECTS"]
-    throw (f"Нет указанного файла конфигурации r{cfile}")
+        return (config["COMPUTE"]["OBJECTS"],  config["COMPUTE"]["ANOMALY_SPEED"], config["COMPUTE"]["LOG_FILE"] )
 
 def get_mysql_server_config( cfile ):
     """
