@@ -16,7 +16,7 @@ MAIN:
 
 COMPUTE:
     ANOMALY_SPEED: 150
-    LOG_FILE: "anomaly_log.txt"
+    LOG_FILE: "anomaly_log.txt"     #пока не используется
     OBJECTS:
         1-9СП(1+,3+,9+):
             SELF_TS: 

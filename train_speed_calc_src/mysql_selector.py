@@ -44,7 +44,7 @@ class MysqlSelector(object):
             try:
                 cursor.execute( sql )
             except:
-                self.logger.error ( f"BAD query: {sql}\n{sys.exc_info()}" )
+                self.logger.error ( f"BAD query: {sql} err: {sys.exc_info()[1]}" )
 
         cursor.close()
         self.logger.info( f"Загружено в БД {len(self.insert_sql_list)} записей с рассчитанными скоростями")
@@ -53,7 +53,7 @@ class MysqlSelector(object):
 
     def insert_into_train_speed( self, decr_dict ):
         dd = decr_dict
-        sql = f"INSERT INTO train_speed (computer_name, move_sec, length, speed_kmh, move_to_ts_name, self_ts_name, self_busy_sec) VALUES ('{dd['computer_name']}', {dd['move_sec']}, {dd['length']}, {dd['speed_kmh']}, '{dd['move_to_ts_name']}', '{dd['self_ts_name']}', {dd['self_busy_sec']})"
+        sql = f"REPLACE INTO train_speed (computer_name, move_sec, length, speed_kmh, move_to_ts_name, self_ts_name, self_busy_sec) VALUES ('{dd['computer_name']}', {dd['move_sec']}, {dd['length']}, {dd['speed_kmh']}, '{dd['move_to_ts_name']}', '{dd['self_ts_name']}', {dd['self_busy_sec']})"
         self.insert_sql_list.append(sql)
 
 #----------------------OLD----------------------------

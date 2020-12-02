@@ -119,18 +119,26 @@ class Computer( object ):
         """
         Это самый главный метод где происходит расчет времени движения говоывы поезда по данной секции        
         Алгорим расчета такой:
-            1. Мы знаем на этом этапе, что условие расчета выполнено
+            0. Мы знаем на этом этапе, что условие расчета выполнено
+            1. Проверяем, что у нас изменялось состояние своего ТС после прошлого расчета
             2. Находим ТС из соседей с наибольшим временем
             3. Проверяме, что время найденого ТС соседа больше времени оновления ТС секции
             4. Определяем разницу между временем соседа и своим - это будет движение поезда по этой  секции
-            5. Определяем скорость движения поезда
-            6. Сохраняем ее в базу данных, пока просто выводим на экран
+            5. Помечаем ТС состояния своей секции как уже использованный
+            6. Сохраняем данные в базу данных, определяем скорость движения поезда
         """
-        last_ts_name = self.__find_last_sibling_ts()
+        #p.0
         #FIX ME - считаем что в self_ts_now - только один ТС и не делаю п.3
         self_ts_name = list(self.__self_ts_now.keys())[0]
-
+        #p.1
+        if ( self.__signals[self_ts_name].is_used ):
+#FIX ME - таких записей выводиться до черта            self.__logger.warning (f"{self.__name} - Повторное занятие соседа при неизменном состоянии участка в {self.__signals[self_ts_name].sec}")
+            return
+        #p.2
+        last_ts_name = self.__find_last_sibling_ts()
+        #p.4
         secs_to_move = self.__signals[last_ts_name].sec - self.__signals[self_ts_name].sec
+        #p.6
         dct = { 'computer_name': self.__name,
                 'move_sec' : secs_to_move,
                 'length' : self.__length,
@@ -147,18 +155,14 @@ class Computer( object ):
 
         if ( dct['speed_kmh'] > self.__anomaly_speed ):
             #show detail:
+            print (f"Аномально большая скорость {dct['speed_kmh']}")
             print (f"Движение по {self_ts_name} в сторону {last_ts_name}, время движения {secs_to_move}сек, скорость: {round(dct['speed_kmh'],2)}км/ч, время занятия: {self.__signals[self_ts_name].sec}")
             for ts in self.__signals.values():
                 print (ts)
             print ("---------")
-            """
-            with open(self.__path_to_file,'a' ) as f:
-                f.write(f"Движение по {self_ts_name} в сторону {last_ts_name}, время движения {secs_to_move}сек, скорость: {round(dct['speed_kmh'],2)}км/ч, время занятия: {self.__signals[self_ts_name].sec}\n")
-                for ts in self.__signals.values():
-                    f.write(str(ts)+'\n')
-                f.write ("---------\n")
-                f.close()
-            """
+
+        #p.5 
+        self.__signals[self_ts_name].is_used = True
 
 def check_states( comp_list, logger ):
     """
@@ -179,3 +183,26 @@ def create_computers( _dict, _logger, _db, anomaly_speed, path_to_file ):
     for c in _dict.keys():
         ret.append( Computer(c, _dict[c], _logger, _db, anomaly_speed, path_to_file ) )
     return ret
+
+
+
+
+#------------------Graveyard of bad ideas------------
+"""
+            print (f"\tДвижение по {self_ts_name} в сторону {last_ts_name}, время движения {secs_to_move}сек, скорость: {round(dct['speed_kmh'],2)}км/ч, время занятия: {self.__signals[self_ts_name].sec}")
+            for ts in self.__signals.values():
+                print ("\t"+str(ts))
+
+
+
+            with open(self.__path_to_file,'a' ) as f:
+                f.write(f"Движение по {self_ts_name} в сторону {last_ts_name}, время движения {secs_to_move}сек, скорость: {round(dct['speed_kmh'],2)}км/ч, время занятия: {self.__signals[self_ts_name].sec}\n")
+                for ts in self.__signals.values():
+                    f.write(str(ts)+'\n')
+                f.write ("---------\n")
+                f.close()
+"""
+
+
+
+
