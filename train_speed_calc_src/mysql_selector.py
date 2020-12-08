@@ -21,6 +21,7 @@ class MysqlSelector(object):
         cursor.execute( create_speed_train_table )
 
 
+
     def handle_signals( self, list_of_ts_names, computers ):
         """
             Получает список ТСов и метод который может передать эти сигналы в калькуляторы
@@ -50,12 +51,26 @@ class MysqlSelector(object):
         self.logger.info( f"Загружено в БД {len(self.insert_sql_list)} записей с рассчитанными скоростями")
         self.insert_sql_list.clear()
 
+    def delete_from_train_speed( self ):
+        cursor = self.cnx.cursor()
+        cursor.execute('delete from train_speed')
+        cursor.close()
 
     def insert_into_train_speed( self, decr_dict ):
         dd = decr_dict
         sql = f"REPLACE INTO train_speed (computer_name, move_sec, length, speed_kmh, move_to_ts_name, self_ts_name, self_busy_sec) VALUES ('{dd['computer_name']}', {dd['move_sec']}, {dd['length']}, {dd['speed_kmh']}, '{dd['move_to_ts_name']}', '{dd['self_ts_name']}', {dd['self_busy_sec']})"
         self.insert_sql_list.append(sql)
 
+    #stage_2
+    def save_train_speed_to_csv( self, path ):
+        with open(path, 'w') as f:
+            cursor = self.cnx.cursor()
+            cursor.execute('select computer_name, move_sec, length, speed_kmh, move_to_ts_name, self_ts_name, self_busy_sec from train_speed')
+            f.write('name,move_sec,length,speed_kmh,move_to_ts_name,self_ts_name,self_busy_sec\n')
+            for (name, move_sec, length, speed_kmh, move_to_ts_name, self_ts_name, self_busy_sec) in cursor:
+                f.write(f'{name},{move_sec},{length},{speed_kmh},{move_to_ts_name},{self_ts_name},{self_busy_sec}\n')
+            cursor.close()
+            f.close()
 #----------------------OLD----------------------------
 
     def get_data_from_ts( self, ts_name, limit ):

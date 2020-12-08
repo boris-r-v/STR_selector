@@ -69,6 +69,8 @@ class Computer( object ):
         self.__sibling_ts_now = _dict['SIBLING_TS'].copy()
         #Длинна участка
         self.__length = float(_dict['LENGTH'])
+        #Направление движения
+        self.__move_to = _dict['MOVE_TO'] if "MOVE_TO" in _dict else "*"
         #Это список с последними значениями ТС
         self.__signals = {}
         #Установим все значения переменных в неинициализированное состояние: -1
@@ -148,8 +150,11 @@ class Computer( object ):
                 'self_busy_sec': self.__signals[self_ts_name].sec,
                 }
 
-        if ( secs_to_move > 0 and dct['speed_kmh'] < self.__anomaly_speed ):
+        check_move_direction = True if ( "*" == self.__move_to or last_ts_name == self.__move_to ) else False
+
+        if ( secs_to_move > 0 and dct['speed_kmh'] < self.__anomaly_speed and check_move_direction ):
             self.__db.insert_into_train_speed( dct )
+#            print (f"Движение по {self_ts_name} в сторону {last_ts_name}, время движения {secs_to_move}сек, скорость: {round(dct['speed_kmh'],2)}км/ч, время занятия: {self.__signals[self_ts_name].sec}")
 
         if ( secs_to_move < 0 ):
             self.__logger.error (f" Скорость отрицательна {dct}")

@@ -23,6 +23,9 @@ def main():
         comp_list = cmptr.create_computers( config_dict, logger, db_conn, anomaly_speed, path_to_file )
         logger.info(f"Загружены калькураторы скорости: {', '.join(e.name() for e in comp_list)}")
 
+        #Удалим старые данные
+        db_conn.delete_from_train_speed()
+
         #Запуским расчет скорости и сохранение данных в БД
         db_conn.handle_signals( cmptr.create_ts_names( comp_list ), comp_list )
         #Проверим что все калькуляторы корректно отработали
