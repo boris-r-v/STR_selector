@@ -1,0 +1,67 @@
+
+MAIN:
+    LOG_LEVEL: INFO  #[DEBUG|INFO|WARNING|ERROR|CRITICAL]
+    MYSQL:
+        IP: 172.17.0.2
+        DATABASE: doppler_muslumovo
+        USER: disp
+
+
+COMPUTE:
+    OBJECTS:
+        НАП:
+            SELF_TS:    #имя сигнала замыкания в маршруте ":" состояние когда элемента РАЗмыкается
+                НАП(б): 0
+
+        1-9СП:
+            SELF_TS:
+                1-9СП(б): 1
+
+        5-13СП:
+            SELF_TS:
+                5-13СП(б): 1
+
+        7СП:
+            SELF_TS:
+                7СП(б): 1
+
+        15-17СП:
+            SELF_TS:
+                15-17СП(б): 1
+
+        ЧДП:
+            SELF_TS:
+                ЧДП(б): 0
+
+        2-8СП:
+            SELF_TS:
+                2-8СП(б): 1
+
+        4СП:
+            SELF_TS:
+                4СП(б): 1
+
+        6-14СП:
+            SELF_TS:
+                6-14СП(б): 1
+
+        10СП:
+            SELF_TS:
+                10СП(б): 1
+
+        12-24СП:
+            SELF_TS:
+                12-24СП(б): 1
+
+        16-20СП:
+            SELF_TS:
+                16-20СП(б): 1
+
+        18СП:
+            SELF_TS:
+                18СП(б): 1
+
+        22СП:
+            SELF_TS:
+                22СП(б): 1
+

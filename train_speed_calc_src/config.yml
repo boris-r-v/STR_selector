@@ -30,6 +30,9 @@ COMPUTE:
                 Н1ИП: 0
             LENGTH: 376
             MOVE_TO: 1-9СП(к)
+            SIGNAL_CONSTRAIN:       #Формат строки: Имя_ТС: состояние временная_задержка_в_секундах (Пример: Ч2(з):0,120 - переход Ч2(з) в 0 не позднее чем 120 секунд назад, после выполнения всех остальных условий SIBLING_TS, SELF_TS, CONSTRAIN)
+                Н(з):0,120
+
 
         НАП(на_3П):
             SELF_TS: 
@@ -43,6 +46,8 @@ COMPUTE:
                 Н1ИП: 0
             LENGTH: 376
             MOVE_TO: 1-9СП(к)
+            SIGNAL_CONSTRAIN:
+                Н(з):0,120
 
         НАП(на_1П):
             SELF_TS: 
@@ -55,6 +60,8 @@ COMPUTE:
                 Н1ИП: 0
             LENGTH: 376
             MOVE_TO: 1-9СП(к)
+            SIGNAL_CONSTRAIN:
+                Н(з):0,120
 
         НАП(на_4П_6П):
             SELF_TS: 
@@ -66,4 +73,6 @@ COMPUTE:
                 Н1ИП: 0
             LENGTH: 376
             MOVE_TO: 1-9СП(к)
+            SIGNAL_CONSTRAIN:
+                Н(з):0,120
 
