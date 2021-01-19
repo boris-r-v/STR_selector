@@ -37,6 +37,8 @@ class Computer( object ):
         self.__state_sec = {}   #словарь с парами имя сигнала : время обновления
 
     def __calc_time_inner(self, insert_sql_list ):
+        if ( 2 != (len(self.__state_sec) ) ):
+            return
         free_sec = self.__state_sec[self.__free_state]
         busy_sec = self.__state_sec[1] if (0 == self.__free_state) else self.__state_sec[0]
         busy_time_sec = free_sec - busy_sec
@@ -49,7 +51,7 @@ class Computer( object ):
                   }
             insert_sql_list.append(dct)
         else:
-            self.__logger.warning (f"{self.__name} продолжительность замыкания меньше нуля замкнули {busy_sec} разомкнули в {free_sec}")
+            self.__logger.warning (f"{self.__name} продолжительность замыкания меньше нуля замкнули {busy_sec} разомкнули в {free_sec}, пропускаем эти события")
 
 
 def create_ts_names( comp_list ):
