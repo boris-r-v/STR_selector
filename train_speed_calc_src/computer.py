@@ -140,6 +140,11 @@ class Computer( object ):
         last_ts_name = self.__find_last_sibling_ts()
         #p.4
         secs_to_move = self.__signals[last_ts_name].sec - self.__signals[self_ts_name].sec
+        if ( secs_to_move == 0 ):
+            self.__logger.error (f"{self.__name} - время движения по секции равно 0, пропускаем.(ts_name: {last_ts_name}, busy_sec: {self.__signals[last_ts_name].sec}) ")
+            self.__signals[self_ts_name].is_used = True
+            return
+
         #p.6
         dct = { 'computer_name': self.__name,
                 'move_sec' : secs_to_move,
