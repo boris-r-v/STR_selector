@@ -1,0 +1,78 @@
+SOMEGROUP:
+    SOMESTRING: xyz
+    SOMEDICT:
+        v1: k1
+        v2: k2
+    SOMELIST:
+        - v1
+        - v2
+
+MAIN:
+    LOG_LEVEL: INFO  #[DEBUG|INFO|WARNING|ERROR|CRITICAL]
+    MYSQL:
+        IP: 172.17.0.2
+        DATABASE: doppler_muslumovo
+        USER: disp
+
+COMPUTE:
+    ANOMALY_SPEED: 160
+    LOG_FILE: "anomaly_log.txt"     #пока не используется
+    OBJECTS:
+        НАП(на_2П):
+            SELF_TS: 
+                НАП(к): 1
+            CONSTRAIN:
+                К9+: 1
+                К35+: 1
+                К1+: 1
+            SIBLING_TS:
+                1-9СП(к): 1
+                Н1ИП: 0
+            LENGTH: 376
+            MOVE_TO: 1-9СП(к)
+            SIGNAL_CONSTRAIN:       #Формат строки: Имя_ТС: состояние временная_задержка_в_секундах (Пример: Ч2(з):0,120 - переход Ч2(з) в 0 не позднее чем 120 секунд назад, после выполнения всех остальных условий SIBLING_TS, SELF_TS, CONSTRAIN)
+                Н(з):0,120
+
+
+        НАП(на_3П):
+            SELF_TS: 
+                НАП(к): 1
+            CONSTRAIN:
+                К9-: 1
+                К35+: 1
+                К1+: 1
+            SIBLING_TS:
+                1-9СП(к): 1
+                Н1ИП: 0
+            LENGTH: 376
+            MOVE_TO: 1-9СП(к)
+            SIGNAL_CONSTRAIN:
+                Н(з):0,120
+
+        НАП(на_1П):
+            SELF_TS: 
+                НАП(к): 1
+            CONSTRAIN:
+                К35-: 1
+                К1+: 1
+            SIBLING_TS:
+                1-9СП(к): 1
+                Н1ИП: 0
+            LENGTH: 376
+            MOVE_TO: 1-9СП(к)
+            SIGNAL_CONSTRAIN:
+                Н(з):0,120
+
+        НАП(на_4П_6П):
+            SELF_TS: 
+                НАП(к): 1
+            CONSTRAIN:
+                К1-: 1
+            SIBLING_TS:
+                1-9СП(к): 1
+                Н1ИП: 0
+            LENGTH: 376
+            MOVE_TO: 1-9СП(к)
+            SIGNAL_CONSTRAIN:
+                Н(з):0,120
+
