@@ -59,6 +59,8 @@ class Computer( object ):
         self.__logger = _logger
         self.__anomaly_speed = _anomaly_speed
         self.__path_to_file = _path_to_file
+        #Ограничение минимальной скорости, актульно для муслуюмово перегон ЧКАБ - там какой то треш
+        self.__speed_min_limit = 0 if 'SPEED_MIN_LIMIT' not in _dict else _dict['SPEED_MIN_LIMIT']
         #Это шаблоны загруженные из конфигурации - какое положение ТС должно быть 
         self.__self_ts_template = _dict['SELF_TS']
         self.__constrain_template = _dict['CONSTRAIN']
@@ -157,7 +159,7 @@ class Computer( object ):
 
         check_move_direction = True if ( "*" == self.__move_to or last_ts_name == self.__move_to ) else False
 
-        if ( secs_to_move > 0 and dct['speed_kmh'] < self.__anomaly_speed and check_move_direction ):
+        if ( secs_to_move > 0 and dct['speed_kmh'] < self.__anomaly_speed and check_move_direction and self.__speed_min_limit < dct['speed_kmh'] ):
             self.__db.insert_into_train_speed( dct )
 #            print (f"Движение по {self_ts_name} в сторону {last_ts_name}, время движения {secs_to_move}сек, скорость: {round(dct['speed_kmh'],2)}км/ч, время занятия: {self.__signals[self_ts_name].sec}")
 

@@ -15,7 +15,7 @@ MAIN:
         USER: disp
 
 COMPUTE:
-    ANOMALY_SPEED: 160
+    ANOMALY_SPEED: 140
     LOG_FILE: "anomaly_log.txt"     #пока не используется
     OBJECTS:
         НАП(на_2П):
@@ -49,30 +49,18 @@ COMPUTE:
             SIGNAL_CONSTRAIN:
                 Н(з):0,120
 
-        НАП(на_1П):
+        Н1ИП:
             SELF_TS: 
-                НАП(к): 1
+                Н1ИП: 0
             CONSTRAIN:
-                К35-: 1
+                К35+: 1
                 К1+: 1
             SIBLING_TS:
-                1-9СП(к): 1
-                Н1ИП: 0
-            LENGTH: 376
-            MOVE_TO: 1-9СП(к)
-            SIGNAL_CONSTRAIN:
-                Н(з):0,120
-
-        НАП(на_4П_6П):
-            SELF_TS: 
                 НАП(к): 1
-            CONSTRAIN:
-                К1-: 1
-            SIBLING_TS:
-                1-9СП(к): 1
-                Н1ИП: 0
-            LENGTH: 376
-            MOVE_TO: 1-9СП(к)
+                Н2ИП: 0
+            LENGTH: 1000
+            MOVE_TO: НАП(к)
+            SPEED_MIN_LIMIT: 20
             SIGNAL_CONSTRAIN:
                 Н(з):0,120
 
