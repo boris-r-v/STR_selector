@@ -6,7 +6,7 @@ import logging,sys
 from ts import Ts
 
 #{'computer_name': 'НАП', 'move_sec': 45, 'length': 125.0, 'speed_kmh': 10.0, 'move_to_ts_name': 'Н1ИП', 'self_ts_name': 'НАП(к)', 'self_busy_sec': 1605530175}
-create_speed_train_table="CREATE TABLE IF NOT EXISTS two_sect_speed (who VARCHAR(100), sect1_name VARCHAR(100), sect1_speed_kmh FLOAT, sect1_free_sec INT, sect2_name VARCHAR(100), sect2_speed_kmh FLOAT, sect2_free_sec INT, PRIMARY KEY(who, sect1_free_sec, sect2_free_sec) ) ENGINE=MYISAM "
+create_speed_train_table="CREATE TABLE IF NOT EXISTS two_sect_speed (who VARCHAR(100), sect1_name VARCHAR(100), sect1_speed_kmh FLOAT, sect1_busy_sec INT, sect2_name VARCHAR(100), sect2_speed_kmh FLOAT, sect2_busy_sec INT, PRIMARY KEY(who, sect1_busy_sec, sect2_busy_sec) ) ENGINE=MYISAM "
 
 class MysqlSelector(object):
     def __init__( self, logger, config_file ):
@@ -40,12 +40,14 @@ class MysqlSelector(object):
             for cm in computers:
                 cm.new_state( Ts(sec, who, value) )
 
+        #удалим старые записи
+        self.delete_from_train_speed()
         #когда проверили - смотрим что насчитали и соханяем в БД
         for sql in self.insert_sql_list:
             try:
                 cursor.execute( sql )
             except:
-                self.logger.error ( f"BAD query: {sql} err: {sys.exc_info()[1]}" )
+                self.logger.error ( f"BAD query: {sql} err: {sys.exc_info()[1]}\n" )
 
         cursor.close()
         self.logger.info( f"Загружено в БД {len(self.insert_sql_list)} записей с рассчитанными скоростями")
@@ -58,17 +60,17 @@ class MysqlSelector(object):
 
     def insert_into_train_speed( self, decr_dict ):
         dd = decr_dict
-        sql = f"REPLACE INTO two_sect_speed (who, sect1_name, sect1_speed_kmh, sect1_free_sec, sect2_name, sect2_speed_kmh, sect2_free_sec ) VALUES ('{dd['who']}', {dd['sect1_name']}, {dd['sect1_speed_kmh']}, {dd['sect1_free_sec']}, '{dd['sect2_name']}', '{dd['sect2_speed_kmh']}', {dd['sect_2_free_sec']})"
+        sql = f"REPLACE INTO two_sect_speed (who, sect1_name, sect1_speed_kmh, sect1_busy_sec, sect2_name, sect2_speed_kmh, sect2_busy_sec ) VALUES ('{dd['who']}', '{dd['sect1_name']}', {dd['sect1_speed_kmh']}, {dd['sect1_busy_sec']}, '{dd['sect2_name']}', {dd['sect2_speed_kmh']}, {dd['sect2_busy_sec']})"
         self.insert_sql_list.append(sql)
 
     #stage_2 --- не сделано
     def save_train_speed_to_csv( self, path ):
         with open(path, 'w') as f:
             cursor = self.cnx.cursor()
-            cursor.execute('select computer_name, move_sec, length, speed_kmh, move_to_ts_name, self_ts_name, self_busy_sec from train_speed')
-            f.write('name,move_sec,length,speed_kmh,move_to_ts_name,self_ts_name,self_busy_sec\n')
-            for (name, move_sec, length, speed_kmh, move_to_ts_name, self_ts_name, self_busy_sec) in cursor:
-                f.write(f'{name},{move_sec},{length},{speed_kmh},{move_to_ts_name},{self_ts_name},{self_busy_sec}\n')
+            cursor.execute('select who, sect1_name, sect1_speed_kmh, sect1_busy_sec, sect2_name, sect2_speed_kmh, sect2_busy_sec from two_sect_speed')
+            f.write('who, sect1_name, sect1_speed_kmh, sect1_busy_sec, sect2_name, sect2_speed_kmh, sect2_busy_sec\n')
+            for (who, sect1_name, sect1_speed_kmh, sect1_busy_sec, sect2_name, sect2_speed_kmh, sect2_busy_sec) in cursor:
+                f.write(f'{who}, {sect1_name}, {sect1_speed_kmh}, {sect1_busy_sec}, {sect2_name}, {sect2_speed_kmh}, {sect2_busy_sec}\n')
             cursor.close()
             f.close()
 #----------------------OLD----------------------------

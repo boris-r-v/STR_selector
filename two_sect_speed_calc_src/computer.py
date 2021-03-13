@@ -105,15 +105,22 @@ class Computer( object ):
                 v[ts.name] = ts.value
                 self.__signals[ts.name] = ts
 
+
     def __compute( self ):
         if ( self.__check_conditions_equals() ):
             fst = self.__compute_inner(0)
             scd = self.__compute_inner(1)
             if ( fst and scd ):
-                print ("(((")
-                print (fst)
-                print (scd)
-                print (")))")
+                out = { 'who': self.__name,
+                        'sect1_name': scd['self_ts_name'],
+                        'sect1_speed_kmh': scd['speed_kmh'],
+                        'sect1_busy_sec': scd['self_busy_sec'],
+                        'sect2_name': fst['self_ts_name'],
+                        'sect2_speed_kmh': fst['speed_kmh'],
+                        'sect2_busy_sec': fst['self_busy_sec']
+                }
+                print ( out )
+                self.__db.insert_into_train_speed( out )
 
 
     def __check_conditions_equals( self ):
@@ -134,24 +141,17 @@ class Computer( object ):
         return last_ts_name
 
     def __compute_inner( self, sect ):
-        #p.0
         self_ts_name = list(self.__self_ts_now.keys())[sect]
-        #p.1    - не нужен т.к. дважы ходим по сигналам 
         if ( self.__signals[self_ts_name].is_used >= 2 ):
-            #FIX ME - таких записей выводиться до черта            
-            self.__logger.warning (f"{self.__name} - Повторное занятие соседа при неизменном состоянии участка в {self.__signals[self_ts_name].sec}")
+            #self.__logger.warning (f"{self.__name} - Повторное занятие соседа при неизменном состоянии участка в {self.__signals[self_ts_name].sec}")
             return None
-        #p.2
         last_ts_name = self.__find_last_sibling_ts(self_ts_name)
-        #p.4
         secs_to_move = self.__signals[last_ts_name].sec - self.__signals[self_ts_name].sec
-        #print ("On ", self_ts_name, "to", last_ts_name, "sec move", secs_to_move )
         if ( secs_to_move == 0 ):
-            self.__logger.error (f"{self.__name} - время движения по секции равно или меньше 0, пропускаем.(ts_name: {last_ts_name}, busy_sec: {self.__signals[last_ts_name].sec}) ")
+            #self.__logger.error (f"{self.__name} - время движения по секции равно 0, пропускаем.(ts_name: {last_ts_name}, busy_sec: {self.__signals[last_ts_name].sec}) ")
             self.__signals[self_ts_name].used()
             return None
 
-        #p.6
         dct = { 'who': self.__name,
                 'move_sec' : secs_to_move,
                 'length' : self.__length,
@@ -164,7 +164,6 @@ class Computer( object ):
 
         check_move_direction = True if ( "*" == self.__move_to[self_ts_name] or last_ts_name == self.__move_to[self_ts_name] ) else False
         if (  secs_to_move > 0 and dct['speed_kmh'] < self.__anomaly_speed and check_move_direction and self.__speed_min_limit < dct['speed_kmh'] ):
-            #p.5 
             self.__signals[self_ts_name].used()
             return dct
         else:
